@@ -3,26 +3,17 @@ package ru.sprikut.sd.refactoring;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import ru.sprikut.sd.refactoring.database.Database;
+import ru.sprikut.sd.refactoring.database.ProductDatabase;
+import ru.sprikut.sd.refactoring.product.Product;
 import ru.sprikut.sd.refactoring.servlet.AddProductServlet;
 import ru.sprikut.sd.refactoring.servlet.GetProductsServlet;
 import ru.sprikut.sd.refactoring.servlet.QueryServlet;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
-
 public class Main {
     public static void main(String[] args) throws Exception {
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-            String sql = "CREATE TABLE IF NOT EXISTS PRODUCT" +
-                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                    " NAME           TEXT    NOT NULL, " +
-                    " PRICE          INT     NOT NULL)";
-            Statement stmt = c.createStatement();
-
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
+        Database<Product> database = new ProductDatabase("jdbc:sqlite:test.db");
+        database.createIfNotExists();
 
         Server server = new Server(8081);
 
