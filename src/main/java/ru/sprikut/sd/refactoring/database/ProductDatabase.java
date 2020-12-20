@@ -44,4 +44,45 @@ public class ProductDatabase extends Database<Product> {
         List<List<String>> select = selectSql("SELECT NAME, PRICE FROM PRODUCT", List.of("NAME", "PRICE"));
         return select.stream().map(this::parseProduct).collect(Collectors.toList());
     }
+
+    private Product minMax(int mode) {
+        List<Product> products = selectAll();
+        if (products.isEmpty()) {
+            return null;
+        }
+        Product answer = products.get(0);
+        for (Product product : products) {
+            if (mode == 0 && answer.getPrice() > product.getPrice() ||
+                    mode == 1 && answer.getPrice() < product.getPrice()) {
+                answer = product;
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public Product max() {
+        return minMax(1);
+    }
+
+    @Override
+    public Product min() {
+        return minMax(0);
+    }
+
+    @Override
+    public int sum() {
+        List<Product> products = selectAll();
+        int sum = 0;
+        for (Product product : products) {
+            sum += product.getPrice();
+        }
+        return sum;
+    }
+
+    @Override
+    public int count() {
+        List<Product> products = selectAll();
+        return products.size();
+    }
 }

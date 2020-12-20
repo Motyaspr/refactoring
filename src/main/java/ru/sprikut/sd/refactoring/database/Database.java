@@ -58,4 +58,12 @@ public abstract class Database<T> {
         }
         return result;
     }
+
+    public abstract Product max();
+
+    public abstract Product min();
+
+    public abstract int sum();
+
+    public abstract int count();
 }
