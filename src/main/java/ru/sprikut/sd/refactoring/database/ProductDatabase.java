@@ -20,7 +20,7 @@ public class ProductDatabase extends Database<Product> {
 
     @Override
     public void dropIfExists() {
-        execSql("DROP IF EXISTS PRODUCT");
+        execSql("DROP TABLE IF EXISTS PRODUCT");
     }
 
     @Override
