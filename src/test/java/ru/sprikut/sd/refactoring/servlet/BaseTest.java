@@ -5,21 +5,22 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ru.sprikut.sd.refactoring.database.Database;
+import ru.sprikut.sd.refactoring.database.ProductDatabase;
+import ru.sprikut.sd.refactoring.product.Product;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.mockito.Mockito.when;
 
 public class BaseTest {
     private static final String TEST_DATABASE_NAME = "jdbc:sqlite:test.db";
+
+    protected final Database<Product> database = new ProductDatabase(TEST_DATABASE_NAME);
 
     protected final StringWriter writer = new StringWriter();
 
@@ -30,10 +31,8 @@ public class BaseTest {
     protected HttpServletResponse response;
 
     @Before
-    public void createTestDatabase() throws SQLException {
-        execSql("CREATE TABLE IF NOT EXISTS PRODUCT" +
-                "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                "NAME TEXT NOT NULL, PRICE INT NOT NULL)");
+    public void createDatabase() {
+        database.createIfNotExists();
     }
 
     @Before
@@ -43,16 +42,8 @@ public class BaseTest {
     }
 
     @After
-    public void dropDatabase() throws SQLException {
-        execSql("DROP TABLE IF EXISTS PRODUCT");
-    }
-
-    protected void execSql(String sql) throws SQLException {
-        try (Connection c = DriverManager.getConnection(TEST_DATABASE_NAME)) {
-            Statement statement = c.createStatement();
-            statement.executeUpdate(sql);
-            statement.close();
-        }
+    public void dropDatabase() {
+        database.dropIfExists();
     }
 
     protected void compareStrings(String a, String b) {

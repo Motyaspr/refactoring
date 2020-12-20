@@ -1,22 +1,23 @@
 package ru.sprikut.sd.refactoring.servlet;
 
 import org.junit.Test;
+import ru.sprikut.sd.refactoring.product.Product;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
 public class QueryTest extends BaseTest {
     private void testCommand(String command, String result) throws IOException {
         when(request.getParameter("command")).thenReturn(command);
-        new QueryServlet().doGet(request, response);
+        new QueryServlet(database).doGet(request, response);
         compareStrings(writer.toString(), result);
     }
 
     @Test
     public void nullCommandTest() throws IOException {
-        new QueryServlet().doGet(request, response);
+        new QueryServlet(database).doGet(request, response);
         compareStrings(writer.toString(), "Unknown command: null");
     }
 
@@ -37,9 +38,13 @@ public class QueryTest extends BaseTest {
         maxTest("");
     }
 
+    private void simpleInsert() {
+        database.insert(List.of(new Product("iphone", 111), new Product("samsung", 95)));
+    }
+
     @Test
-    public void simpleMaxTest() throws SQLException, IOException {
-        execSql("INSERT INTO PRODUCT (NAME, PRICE) VALUES ('iphone', 111), ('samsung', 95)");
+    public void simpleMaxTest() throws IOException {
+        simpleInsert();
         maxTest("iphone\t111</br>\n");
     }
 
@@ -56,8 +61,8 @@ public class QueryTest extends BaseTest {
     }
 
     @Test
-    public void simpleMinTest() throws SQLException, IOException {
-        execSql("INSERT INTO PRODUCT (NAME, PRICE) VALUES ('iphone', 111), ('samsung', 95)");
+    public void simpleMinTest() throws IOException {
+        simpleInsert();
         minTest("samsung\t95</br>\n");
     }
 
@@ -74,8 +79,8 @@ public class QueryTest extends BaseTest {
     }
 
     @Test
-    public void simpleSumTest() throws IOException, SQLException {
-        execSql("INSERT INTO PRODUCT (NAME, PRICE) VALUES ('iphone', 111), ('samsung', 95)");
+    public void simpleSumTest() throws IOException {
+        simpleInsert();
         sumTest("206\n");
     }
 
@@ -92,8 +97,8 @@ public class QueryTest extends BaseTest {
     }
 
     @Test
-    public void simpleCountTest() throws IOException, SQLException {
-        execSql("INSERT INTO PRODUCT (NAME, PRICE) VALUES ('iphone', 111), ('samsung', 95)");
+    public void simpleCountTest() throws IOException {
+        simpleInsert();
         countTest("2\n");
     }
 }
